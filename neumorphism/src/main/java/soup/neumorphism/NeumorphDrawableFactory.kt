@@ -19,6 +19,8 @@ object NeumorphDrawableFactory {
         attrs: AttributeSet?,
         @AttrRes defStyleAttr: Int,
         @StyleRes defStyleRes: Int,
+        width: Int,
+        height: Int,
         isInEditMode: Boolean,
         @ShapeType shapeType: Int,
         shadowElevation: Float,
@@ -34,14 +36,15 @@ object NeumorphDrawableFactory {
         insetRight: Int,
         insetBottom: Int
     ): NeumorphShapeDrawable {
-
-        var hashCode = isInEditMode.hashCode()
+        var hashCode = width
+        hashCode = 31 * hashCode + height
+        hashCode = 31 * hashCode + isInEditMode.hashCode()
         hashCode = 31 * hashCode + shapeType
         hashCode = 31 * hashCode + shadowElevation.hashCode()
         hashCode = 31 * hashCode + shadowColorLight
         hashCode = 31 * hashCode + shadowColorDark
         hashCode = 31 * hashCode + (backgroundDrawable?.hashCode() ?: 0)
-        hashCode = 31 * hashCode + fillColor.hashCode()
+        hashCode = 31 * hashCode + (fillColor?.hashCode() ?: 0)
         hashCode = 31 * hashCode + strokeWidth.hashCode()
         hashCode = 31 * hashCode + (strokeColor?.hashCode() ?: 0)
         hashCode = 31 * hashCode + translationZ.hashCode()
@@ -49,7 +52,6 @@ object NeumorphDrawableFactory {
         hashCode = 31 * hashCode + insetTop
         hashCode = 31 * hashCode + insetRight
         hashCode = 31 * hashCode + insetBottom
-
 
         return reusable_drawables[hashCode] ?: NeumorphShapeDrawable(context, attrs, defStyleAttr, defStyleRes).apply {
             setInEditMode(isInEditMode)
@@ -65,7 +67,5 @@ object NeumorphDrawableFactory {
             reusable_drawables[hashCode] = this
         }
     }
-
-
 
 }

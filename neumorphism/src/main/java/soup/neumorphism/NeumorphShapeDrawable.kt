@@ -21,7 +21,7 @@ class NeumorphShapeDrawable : Drawable {
 
     private var drawableState: NeumorphShapeDrawableState
 
-    private var dirty = false
+    private var dirty = true
 
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -37,6 +37,9 @@ class NeumorphShapeDrawable : Drawable {
 
     private val outlinePath = Path()
     private var shadow: Shape? = null
+
+    private var backgroundBitmap: Bitmap? = null
+    private var backgroundRect = RectF()
 
     constructor(context: Context) : this(NeumorphShapeAppearanceModel(), BlurProvider(context))
 
@@ -237,7 +240,6 @@ class NeumorphShapeDrawable : Drawable {
     }
 
     override fun invalidateSelf() {
-        dirty = true
         super.invalidateSelf()
     }
 
@@ -288,6 +290,7 @@ class NeumorphShapeDrawable : Drawable {
         if (dirty) {
             calculateOutlinePath(getBoundsAsRectF(), outlinePath)
             shadow?.updateShadowBitmap(getBoundsInternal())
+            updateBackgroundBitmap()
             dirty = false
         }
 
@@ -296,7 +299,7 @@ class NeumorphShapeDrawable : Drawable {
         }
 
         if (hasBackgroundDrawable()) {
-            drawBackgroundDrawable(canvas)
+            drawBackgroundBitmap(canvas)
         }
 
         shadow?.draw(canvas, outlinePath)
@@ -310,19 +313,25 @@ class NeumorphShapeDrawable : Drawable {
         strokePaint.alpha = prevStrokeAlpha
     }
 
-    private fun drawBackgroundDrawable(canvas: Canvas) {
-        drawableState.backgroundDrawable?.let { drawable ->
-            val rect = RectF()
-            outlinePath.computeBounds(rect, true)
+    private fun updateBackgroundBitmap() {
+        backgroundBitmap =  drawableState.backgroundDrawable?.let { drawable ->
+            backgroundRect = RectF()
+            outlinePath.computeBounds(backgroundRect, true)
 
-            val rectWidth = rect.width().toInt()
-            val rectHeight = rect.height().toInt()
+            val rectWidth = backgroundRect.width().toInt()
+            val rectHeight = backgroundRect.height().toInt()
             val bitmap = drawable.toBitmap(rectWidth, rectHeight)
 
             val cornerSize = if (drawableState.shapeAppearanceModel.getCornerFamily() == CornerFamily.OVAL) bitmap.height / 2f
             else drawableState.shapeAppearanceModel.getCornerSize()
 
-            canvas.drawBitmap(bitmap.clipToRadius(cornerSize), rect.left, rect.top, null)
+            bitmap.clipToRadius(cornerSize)
+        }
+
+    }
+    private fun drawBackgroundBitmap(canvas: Canvas) {
+        backgroundBitmap?.let { bitmap ->
+            canvas.drawBitmap(bitmap, backgroundRect.left, backgroundRect.top, null)
         }
     }
 

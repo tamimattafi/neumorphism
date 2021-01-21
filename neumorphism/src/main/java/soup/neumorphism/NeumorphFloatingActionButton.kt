@@ -11,90 +11,23 @@ import soup.neumorphism.internal.util.NeumorphResources
 
 class NeumorphFloatingActionButton @JvmOverloads constructor(
     context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = R.attr.neumorphFloatingActionButtonStyle,
-    defStyleRes: Int = R.style.Widget_Neumorph_FloatingActionButton
+    private val attrs: AttributeSet? = null,
+    private val defStyleAttr: Int = R.attr.neumorphFloatingActionButtonStyle,
+    private val defStyleRes: Int = R.style.Widget_Neumorph_FloatingActionButton
 ) : AppCompatImageButton(context, attrs, defStyleAttr) {
 
     private var isInitialized: Boolean = false
-    private val shapeDrawable: NeumorphShapeDrawable
+    private lateinit var shapeDrawable: NeumorphShapeDrawable
 
     private var insetStart = 0
     private var insetEnd = 0
     private var insetTop = 0
     private var insetBottom = 0
 
-    init {
-        val a = context.obtainStyledAttributes(
-            attrs, R.styleable.NeumorphFloatingActionButton, defStyleAttr, defStyleRes
-        )
 
-        val backgroundDrawable = a.getDrawable(R.styleable.NeumorphImageButton_neumorph_backgroundDrawable)
-        val fillColor = a.getColorStateList(R.styleable.NeumorphFloatingActionButton_neumorph_backgroundColor)
-        val strokeColor = a.getColorStateList(R.styleable.NeumorphFloatingActionButton_neumorph_strokeColor)
-        val strokeWidth = a.getDimension(R.styleable.NeumorphFloatingActionButton_neumorph_strokeWidth, 0f)
-        val shapeType =
-            a.getInt(R.styleable.NeumorphFloatingActionButton_neumorph_shapeType, ShapeType.DEFAULT)
-        val inset = a.getDimensionPixelSize(
-            R.styleable.NeumorphFloatingActionButton_neumorph_inset, 0
-        )
-        val insetStart = a.getDimensionPixelSize(
-            R.styleable.NeumorphFloatingActionButton_neumorph_insetStart, -1
-        )
-        val insetEnd = a.getDimensionPixelSize(
-            R.styleable.NeumorphFloatingActionButton_neumorph_insetEnd, -1
-        )
-        val insetTop = a.getDimensionPixelSize(
-            R.styleable.NeumorphFloatingActionButton_neumorph_insetTop, -1
-        )
-        val insetBottom = a.getDimensionPixelSize(
-            R.styleable.NeumorphFloatingActionButton_neumorph_insetBottom, -1
-        )
-        val shadowElevation = a.getDimension(
-            R.styleable.NeumorphFloatingActionButton_neumorph_shadowElevation, 0f
-        )
-        val shadowColorLight = NeumorphResources.getColor(
-            context, a,
-            R.styleable.NeumorphFloatingActionButton_neumorph_shadowColorLight,
-            R.color.design_default_color_shadow_light
-        )
-        val shadowColorDark = NeumorphResources.getColor(
-            context, a,
-            R.styleable.NeumorphFloatingActionButton_neumorph_shadowColorDark,
-            R.color.design_default_color_shadow_dark
-        )
-        a.recycle()
-
-        updateInsets(
-            if (insetStart >= 0) insetStart else inset,
-            if (insetTop >= 0) insetTop else inset,
-            if (insetEnd >= 0) insetEnd else inset,
-            if (insetBottom >= 0) insetBottom else inset
-        )
-
-        shapeDrawable = NeumorphDrawableFactory.createReusable(
-            context,
-            attrs,
-            defStyleAttr,
-            defStyleRes,
-            isInEditMode,
-            shapeType,
-            shadowElevation,
-            shadowColorLight,
-            shadowColorDark,
-            backgroundDrawable,
-            fillColor,
-            strokeWidth,
-            strokeColor,
-            translationZ,
-            this.insetStart,
-            this.insetTop,
-            this.insetEnd,
-            this.insetBottom
-        )
-
-        setBackgroundInternal(shapeDrawable)
-        isInitialized = true
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        this.initShapeDrawable()
     }
 
     override fun setBackground(drawable: Drawable?) {
@@ -162,6 +95,22 @@ class NeumorphFloatingActionButton @JvmOverloads constructor(
         internalSetInset(left, top, right, bottom)
     }
 
+    fun setShadowElevation(shadowElevation: Float) {
+        shapeDrawable.setShadowElevation(shadowElevation)
+    }
+
+    fun getShadowElevation(): Float {
+        return shapeDrawable.getShadowElevation()
+    }
+
+    fun setShadowColorLight(@ColorInt shadowColor: Int) {
+        shapeDrawable.setShadowColorLight(shadowColor)
+    }
+
+    fun setShadowColorDark(@ColorInt shadowColor: Int) {
+        shapeDrawable.setShadowColorDark(shadowColor)
+    }
+
     private fun updateInsets(left: Int, top: Int, right: Int, bottom: Int): Boolean {
         var changed = false
         if (insetStart != left) {
@@ -193,27 +142,88 @@ class NeumorphFloatingActionButton @JvmOverloads constructor(
         }
     }
 
-    fun setShadowElevation(shadowElevation: Float) {
-        shapeDrawable.setShadowElevation(shadowElevation)
-    }
-
-    fun getShadowElevation(): Float {
-        return shapeDrawable.getShadowElevation()
-    }
-
-    fun setShadowColorLight(@ColorInt shadowColor: Int) {
-        shapeDrawable.setShadowColorLight(shadowColor)
-    }
-
-    fun setShadowColorDark(@ColorInt shadowColor: Int) {
-        shapeDrawable.setShadowColorDark(shadowColor)
-    }
-
     override fun setTranslationZ(translationZ: Float) {
         super.setTranslationZ(translationZ)
         if (isInitialized) {
             shapeDrawable.setTranslationZ(translationZ)
         }
+    }
+
+    private fun initShapeDrawable() {
+        if (isInitialized || measuredHeight * measuredWidth == 0) return
+
+        val a = context.obtainStyledAttributes(
+                attrs, R.styleable.NeumorphFloatingActionButton, defStyleAttr, defStyleRes
+        )
+
+        val backgroundDrawable = a.getDrawable(R.styleable.NeumorphImageButton_neumorph_backgroundDrawable)
+        val fillColor = a.getColorStateList(R.styleable.NeumorphFloatingActionButton_neumorph_backgroundColor)
+        val strokeColor = a.getColorStateList(R.styleable.NeumorphFloatingActionButton_neumorph_strokeColor)
+        val strokeWidth = a.getDimension(R.styleable.NeumorphFloatingActionButton_neumorph_strokeWidth, 0f)
+        val shapeType =
+                a.getInt(R.styleable.NeumorphFloatingActionButton_neumorph_shapeType, ShapeType.DEFAULT)
+        val inset = a.getDimensionPixelSize(
+                R.styleable.NeumorphFloatingActionButton_neumorph_inset, 0
+        )
+        val insetStart = a.getDimensionPixelSize(
+                R.styleable.NeumorphFloatingActionButton_neumorph_insetStart, -1
+        )
+        val insetEnd = a.getDimensionPixelSize(
+                R.styleable.NeumorphFloatingActionButton_neumorph_insetEnd, -1
+        )
+        val insetTop = a.getDimensionPixelSize(
+                R.styleable.NeumorphFloatingActionButton_neumorph_insetTop, -1
+        )
+        val insetBottom = a.getDimensionPixelSize(
+                R.styleable.NeumorphFloatingActionButton_neumorph_insetBottom, -1
+        )
+        val shadowElevation = a.getDimension(
+                R.styleable.NeumorphFloatingActionButton_neumorph_shadowElevation, 0f
+        )
+        val shadowColorLight = NeumorphResources.getColor(
+                context, a,
+                R.styleable.NeumorphFloatingActionButton_neumorph_shadowColorLight,
+                R.color.design_default_color_shadow_light
+        )
+        val shadowColorDark = NeumorphResources.getColor(
+                context, a,
+                R.styleable.NeumorphFloatingActionButton_neumorph_shadowColorDark,
+                R.color.design_default_color_shadow_dark
+        )
+        a.recycle()
+
+        updateInsets(
+                if (insetStart >= 0) insetStart else inset,
+                if (insetTop >= 0) insetTop else inset,
+                if (insetEnd >= 0) insetEnd else inset,
+                if (insetBottom >= 0) insetBottom else inset
+        )
+
+        shapeDrawable = NeumorphDrawableFactory.createReusable(
+                context,
+                attrs,
+                defStyleAttr,
+                defStyleRes,
+                measuredWidth,
+                measuredHeight,
+                isInEditMode,
+                shapeType,
+                shadowElevation,
+                shadowColorLight,
+                shadowColorDark,
+                backgroundDrawable,
+                fillColor,
+                strokeWidth,
+                strokeColor,
+                translationZ,
+                this.insetStart,
+                this.insetTop,
+                this.insetEnd,
+                this.insetBottom
+        )
+
+        setBackgroundInternal(shapeDrawable)
+        isInitialized = true
     }
 
     companion object {

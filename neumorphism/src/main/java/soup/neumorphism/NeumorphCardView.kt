@@ -65,23 +65,34 @@ class NeumorphCardView @JvmOverloads constructor(
         )
         a.recycle()
 
-        shapeDrawable = NeumorphShapeDrawable(context, attrs, defStyleAttr, defStyleRes).apply {
-            setInEditMode(isInEditMode)
-            setShapeType(shapeType)
-            setShadowElevation(shadowElevation)
-            setShadowColorLight(shadowColorLight)
-            setShadowColorDark(shadowColorDark)
-            setBackgroundDrawable(backgroundDrawable)
-            setFillColor(fillColor)
-            setStroke(strokeWidth, strokeColor)
-            setTranslationZ(translationZ)
-        }
-        internalSetInset(
+        updateInsets(
             if (insetStart >= 0) insetStart else inset,
             if (insetTop >= 0) insetTop else inset,
             if (insetEnd >= 0) insetEnd else inset,
             if (insetBottom >= 0) insetBottom else inset
         )
+
+        shapeDrawable = NeumorphDrawableFactory.createReusable(
+            context,
+            attrs,
+            defStyleAttr,
+            defStyleRes,
+            isInEditMode,
+            shapeType,
+            shadowElevation,
+            shadowColorLight,
+            shadowColorDark,
+            backgroundDrawable,
+            fillColor,
+            strokeWidth,
+            strokeColor,
+            translationZ,
+            this.insetStart,
+            this.insetTop,
+            this.insetEnd,
+            this.insetBottom
+        )
+
         setBackgroundInternal(shapeDrawable)
         isInitialized = true
     }
@@ -161,7 +172,7 @@ class NeumorphCardView @JvmOverloads constructor(
         internalSetInset(left, top, right, bottom)
     }
 
-    private fun internalSetInset(left: Int, top: Int, right: Int, bottom: Int) {
+    private fun updateInsets(left: Int, top: Int, right: Int, bottom: Int): Boolean {
         var changed = false
         if (insetStart != left) {
             changed = true
@@ -180,6 +191,11 @@ class NeumorphCardView @JvmOverloads constructor(
             insetBottom = bottom
         }
 
+        return changed
+    }
+
+    private fun internalSetInset(left: Int, top: Int, right: Int, bottom: Int) {
+        val changed = updateInsets(left, top, right, bottom)
         if (changed) {
             shapeDrawable.setInset(left, top, right, bottom)
             requestLayout()

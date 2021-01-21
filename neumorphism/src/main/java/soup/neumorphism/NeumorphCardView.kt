@@ -21,19 +21,19 @@ class NeumorphCardView @JvmOverloads constructor(
     private var isInitialized: Boolean = false
     private lateinit var shapeDrawable: NeumorphShapeDrawable
 
-    private val backgroundDrawable: Drawable?
-    private val fillColor: ColorStateList?
-    private val strokeColor: ColorStateList?
-    private val strokeWidth: Float
-    private val shapeType: Int
-    private val inset: Int
+    private var backgroundDrawable: Drawable?
+    private var fillColor: ColorStateList?
+    private var strokeColor: ColorStateList?
+    private var strokeWidth: Float
+    private var shapeType: Int
+    private var inset: Int
     private var insetStart: Int
     private var insetEnd: Int
     private var insetTop: Int
     private var insetBottom: Int
-    private val shadowElevation: Float
-    private val shadowColorLight: Int
-    private val shadowColorDark: Int
+    private var shadowElevation: Float
+    private var shadowColorLight: Int
+    private var shadowColorDark: Int
 
     init {
         val a = context.obtainStyledAttributes(
@@ -118,8 +118,21 @@ class NeumorphCardView @JvmOverloads constructor(
     }
 
     fun setNeumorphBackgroundDrawable(drawable: Drawable?) {
-        shapeDrawable.setBackgroundDrawable(drawable)
+        if (isInitialized) shapeDrawable.setBackgroundDrawable(drawable)
+        else backgroundDrawable = drawable
     }
+
+    fun setShapeType(@ShapeType shapeType: Int) {
+        if (isInitialized) shapeDrawable.setShapeType(shapeType)
+        else this.shapeType = shapeType
+    }
+
+    @ShapeType
+    fun getShapeType(): Int {
+        return if (isInitialized) shapeDrawable.getShapeType()
+        else shapeType
+    }
+
     private fun setBackgroundInternal(drawable: Drawable?) {
         super.setBackgroundDrawable(drawable)
     }
@@ -158,15 +171,6 @@ class NeumorphCardView @JvmOverloads constructor(
 
     fun getStrokeWidth(): Float {
         return shapeDrawable.getStrokeWidth()
-    }
-
-    fun setShapeType(@ShapeType shapeType: Int) {
-        shapeDrawable.setShapeType(shapeType)
-    }
-
-    @ShapeType
-    fun getShapeType(): Int {
-        return shapeDrawable.getShapeType()
     }
 
     fun setInset(left: Int, top: Int, right: Int, bottom: Int) {

@@ -164,7 +164,7 @@ class NeumorphCardView @JvmOverloads constructor(
         if (isInitialized || measuredHeight * measuredWidth == 0) return
 
         val a = context.obtainStyledAttributes(
-                attrs, R.styleable.NeumorphFloatingActionButton, defStyleAttr, defStyleRes
+                attrs, R.styleable.NeumorphCardView, defStyleAttr, defStyleRes
         )
 
         val backgroundDrawable = a.getDrawable(R.styleable.NeumorphImageButton_neumorph_backgroundDrawable)

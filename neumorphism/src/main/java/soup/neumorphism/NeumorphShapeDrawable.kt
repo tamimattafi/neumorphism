@@ -314,7 +314,7 @@ class NeumorphShapeDrawable : Drawable {
     }
 
     private fun updateBackgroundBitmap() {
-        backgroundBitmap =  drawableState.backgroundDrawable?.let { drawable ->
+        backgroundBitmap = drawableState.backgroundDrawable?.let { drawable ->
             backgroundRect = RectF()
             outlinePath.computeBounds(backgroundRect, true)
 
@@ -327,8 +327,8 @@ class NeumorphShapeDrawable : Drawable {
 
             bitmap.clipToRadius(cornerSize)
         }
-
     }
+
     private fun drawBackgroundBitmap(canvas: Canvas) {
         backgroundBitmap?.let { bitmap ->
             canvas.drawBitmap(bitmap, backgroundRect.left, backgroundRect.top, null)

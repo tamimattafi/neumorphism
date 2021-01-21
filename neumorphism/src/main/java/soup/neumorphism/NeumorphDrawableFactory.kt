@@ -53,7 +53,7 @@ object NeumorphDrawableFactory {
         hashCode = 31 * hashCode + insetRight
         hashCode = 31 * hashCode + insetBottom
 
-        return reusable_drawables[hashCode] ?: NeumorphShapeDrawable(context, attrs, defStyleAttr, defStyleRes).apply {
+        val drawable = reusable_drawables[hashCode] ?: NeumorphShapeDrawable(context, attrs, defStyleAttr, defStyleRes).apply {
             setInEditMode(isInEditMode)
             setShapeType(shapeType)
             setShadowElevation(shadowElevation)
@@ -66,6 +66,8 @@ object NeumorphDrawableFactory {
             setInset(insetLeft, insetTop, insetRight, insetBottom)
             reusable_drawables[hashCode] = this
         }
+
+        return drawable.clone()
     }
 
 }

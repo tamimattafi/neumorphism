@@ -20,26 +20,14 @@ import soup.neumorphism.internal.util.BitmapUtils.toBitmap
 class NeumorphShapeDrawable : Drawable {
 
     private var drawableState: NeumorphShapeDrawableState
-
     private var dirty = true
-
-    private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.FILL
-        color = Color.TRANSPARENT
-    }
-
-    private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        color = Color.TRANSPARENT
-    }
-
-    private val rectF = RectF()
-
-    private val outlinePath = Path()
+    private val fillPaint: Paint
+    private val strokePaint: Paint
+    private val rectF: RectF
+    private val outlinePath: Path
     private var shadow: Shape? = null
-
     private var backgroundBitmap: Bitmap? = null
-    private var backgroundRect = RectF()
+    private var backgroundRect: RectF
 
     constructor(context: Context) : this(NeumorphShapeAppearanceModel(), BlurProvider(context))
 
@@ -53,6 +41,42 @@ class NeumorphShapeDrawable : Drawable {
         BlurProvider(context)
     )
 
+    private constructor(
+            drawableState: NeumorphShapeDrawableState,
+            dirty: Boolean,
+            fillPaint: Paint,
+            strokePaint: Paint,
+            rectF: RectF,
+            outlinePath: Path,
+            shadow: Shape?,
+            backgroundBitmap: Bitmap?,
+            backgroundRect: RectF
+    ): super() {
+        this.drawableState = drawableState
+        this.dirty = dirty
+        this.fillPaint = fillPaint
+        this.strokePaint = strokePaint
+        this.rectF = rectF
+        this.outlinePath = outlinePath
+        this.shadow = shadow
+        this.backgroundBitmap = backgroundBitmap
+        this.backgroundRect = backgroundRect
+    }
+
+    fun clone(): NeumorphShapeDrawable {
+        return NeumorphShapeDrawable(
+                drawableState,
+                dirty,
+                fillPaint,
+                strokePaint,
+                rectF,
+                outlinePath,
+                shadow,
+                backgroundBitmap,
+                backgroundRect
+        )
+    }
+
     internal constructor(
         shapeAppearanceModel: NeumorphShapeAppearanceModel,
         blurProvider: BlurProvider
@@ -61,6 +85,20 @@ class NeumorphShapeDrawable : Drawable {
     private constructor(drawableState: NeumorphShapeDrawableState) : super() {
         this.drawableState = drawableState
         this.shadow = shadowOf(drawableState.shapeType, drawableState)
+
+        fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.FILL
+            color = Color.TRANSPARENT
+        }
+
+        strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            style = Paint.Style.STROKE
+            color = Color.TRANSPARENT
+        }
+
+        rectF = RectF()
+        outlinePath = Path()
+        backgroundRect = RectF()
     }
 
     private fun shadowOf(
@@ -469,15 +507,13 @@ class NeumorphShapeDrawable : Drawable {
         }
 
         override fun newDrawable(): Drawable {
-            return NeumorphShapeDrawable(this).apply {
-                // Force the calculation of the path for the new drawable.
-                dirty = true
-            }
+            return NeumorphShapeDrawable(this)
         }
 
         override fun getChangingConfigurations(): Int {
             return 0
         }
+
     }
 
     companion object {
@@ -488,4 +524,5 @@ class NeumorphShapeDrawable : Drawable {
         }
 
     }
+
 }

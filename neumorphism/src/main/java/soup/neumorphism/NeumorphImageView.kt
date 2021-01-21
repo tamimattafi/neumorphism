@@ -19,14 +19,81 @@ class NeumorphImageView @JvmOverloads constructor(
     private var isInitialized: Boolean = false
     private lateinit var shapeDrawable: NeumorphShapeDrawable
 
-    private var insetStart = 0
-    private var insetEnd = 0
-    private var insetTop = 0
-    private var insetBottom = 0
+    private val backgroundDrawable: Drawable?
+    private val fillColor: ColorStateList?
+    private val strokeColor: ColorStateList?
+    private val strokeWidth: Float
+    private val shapeType: Int
+    private val inset: Int
+    private var insetStart: Int
+    private var insetEnd: Int
+    private var insetTop: Int
+    private var insetBottom: Int
+    private val shadowElevation: Float
+    private val shadowColorLight: Int
+    private val shadowColorDark: Int
+
+    init {
+        val a = context.obtainStyledAttributes(
+            attrs, R.styleable.NeumorphImageView, defStyleAttr, defStyleRes
+        )
+
+        backgroundDrawable = a.getDrawable(R.styleable.NeumorphImageView_neumorph_backgroundDrawable)
+        fillColor = a.getColorStateList(R.styleable.NeumorphImageView_neumorph_backgroundColor)
+        strokeColor = a.getColorStateList(R.styleable.NeumorphImageView_neumorph_strokeColor)
+        strokeWidth = a.getDimension(R.styleable.NeumorphImageView_neumorph_strokeWidth, 0f)
+        shapeType = a.getInt(R.styleable.NeumorphImageView_neumorph_shapeType, ShapeType.DEFAULT)
+        inset = a.getDimensionPixelSize(R.styleable.NeumorphImageView_neumorph_inset, 0)
+        insetStart = a.getDimensionPixelSize(R.styleable.NeumorphImageView_neumorph_insetStart, -1)
+        insetEnd = a.getDimensionPixelSize(R.styleable.NeumorphImageView_neumorph_insetEnd, -1)
+        insetTop = a.getDimensionPixelSize(R.styleable.NeumorphImageView_neumorph_insetTop, -1)
+        insetBottom = a.getDimensionPixelSize(R.styleable.NeumorphImageView_neumorph_insetBottom, -1)
+        shadowElevation = a.getDimension(R.styleable.NeumorphImageView_neumorph_shadowElevation, 0f)
+        shadowColorLight = NeumorphResources.getColor(context, a, R.styleable.NeumorphImageView_neumorph_shadowColorLight, R.color.design_default_color_shadow_light)
+        shadowColorDark = NeumorphResources.getColor(context, a, R.styleable.NeumorphImageView_neumorph_shadowColorDark, R.color.design_default_color_shadow_dark)
+        a.recycle()
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        this.initShapeDrawable()
+        initShapeDrawable()
+    }
+
+    private fun initShapeDrawable() {
+        if (isInitialized || measuredWidth * measuredHeight == 0) return
+
+        updateInsets(
+            if (insetStart >= 0) insetStart else inset,
+            if (insetTop >= 0) insetTop else inset,
+            if (insetEnd >= 0) insetEnd else inset,
+            if (insetBottom >= 0) insetBottom else inset
+        )
+
+        shapeDrawable = NeumorphDrawableFactory.createReusable(
+            context,
+            attrs,
+            defStyleAttr,
+            defStyleRes,
+            measuredWidth,
+            measuredHeight,
+            isInEditMode,
+            shapeType,
+            shadowElevation,
+            shadowColorLight,
+            shadowColorDark,
+            backgroundDrawable,
+            fillColor,
+            strokeWidth,
+            strokeColor,
+            translationZ,
+            this.insetStart,
+            this.insetTop,
+            this.insetEnd,
+            this.insetBottom
+        )
+
+        setBackgroundInternal(shapeDrawable)
+        isInitialized = true
     }
 
     override fun setBackground(drawable: Drawable?) {
@@ -145,83 +212,6 @@ class NeumorphImageView @JvmOverloads constructor(
         if (isInitialized) {
             shapeDrawable.setTranslationZ(translationZ)
         }
-    }
-
-    private fun initShapeDrawable() {
-        if (isInitialized || measuredHeight * measuredWidth == 0) return
-
-        val a = context.obtainStyledAttributes(
-                attrs, R.styleable.NeumorphImageView, defStyleAttr, defStyleRes
-        )
-
-        val backgroundDrawable = a.getDrawable(R.styleable.NeumorphImageButton_neumorph_backgroundDrawable)
-        val fillColor = a.getColorStateList(R.styleable.NeumorphFloatingActionButton_neumorph_backgroundColor)
-        val strokeColor = a.getColorStateList(R.styleable.NeumorphFloatingActionButton_neumorph_strokeColor)
-        val strokeWidth = a.getDimension(R.styleable.NeumorphFloatingActionButton_neumorph_strokeWidth, 0f)
-        val shapeType =
-                a.getInt(R.styleable.NeumorphFloatingActionButton_neumorph_shapeType, ShapeType.DEFAULT)
-        val inset = a.getDimensionPixelSize(
-                R.styleable.NeumorphFloatingActionButton_neumorph_inset, 0
-        )
-        val insetStart = a.getDimensionPixelSize(
-                R.styleable.NeumorphFloatingActionButton_neumorph_insetStart, -1
-        )
-        val insetEnd = a.getDimensionPixelSize(
-                R.styleable.NeumorphFloatingActionButton_neumorph_insetEnd, -1
-        )
-        val insetTop = a.getDimensionPixelSize(
-                R.styleable.NeumorphFloatingActionButton_neumorph_insetTop, -1
-        )
-        val insetBottom = a.getDimensionPixelSize(
-                R.styleable.NeumorphFloatingActionButton_neumorph_insetBottom, -1
-        )
-        val shadowElevation = a.getDimension(
-                R.styleable.NeumorphFloatingActionButton_neumorph_shadowElevation, 0f
-        )
-        val shadowColorLight = NeumorphResources.getColor(
-                context, a,
-                R.styleable.NeumorphFloatingActionButton_neumorph_shadowColorLight,
-                R.color.design_default_color_shadow_light
-        )
-        val shadowColorDark = NeumorphResources.getColor(
-                context, a,
-                R.styleable.NeumorphFloatingActionButton_neumorph_shadowColorDark,
-                R.color.design_default_color_shadow_dark
-        )
-        a.recycle()
-
-        updateInsets(
-                if (insetStart >= 0) insetStart else inset,
-                if (insetTop >= 0) insetTop else inset,
-                if (insetEnd >= 0) insetEnd else inset,
-                if (insetBottom >= 0) insetBottom else inset
-        )
-
-        shapeDrawable = NeumorphDrawableFactory.createReusable(
-                context,
-                attrs,
-                defStyleAttr,
-                defStyleRes,
-                measuredWidth,
-                measuredHeight,
-                isInEditMode,
-                shapeType,
-                shadowElevation,
-                shadowColorLight,
-                shadowColorDark,
-                backgroundDrawable,
-                fillColor,
-                strokeWidth,
-                strokeColor,
-                translationZ,
-                this.insetStart,
-                this.insetTop,
-                this.insetEnd,
-                this.insetBottom
-        )
-
-        setBackgroundInternal(shapeDrawable)
-        isInitialized = true
     }
 
     companion object {

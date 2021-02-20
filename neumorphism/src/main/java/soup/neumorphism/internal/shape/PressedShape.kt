@@ -24,7 +24,7 @@ internal class PressedShape(
         this.drawableState = newDrawableState
     }
 
-    override fun draw(canvas: Canvas, outlinePath: Path) {
+    override fun draw(canvas: Canvas, outlinePath: Path, bounds: Rect) {
         canvas.withClip(outlinePath) {
             shadowBitmap?.let {
                 val left: Float

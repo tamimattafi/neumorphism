@@ -16,8 +16,8 @@ internal class BasinShape(drawableState: NeumorphShapeDrawableState) : Shape {
         shadows.forEach { it.setDrawableState(newDrawableState) }
     }
 
-    override fun draw(canvas: Canvas, outlinePath: Path) {
-        shadows.forEach { it.draw(canvas, outlinePath) }
+    override fun draw(canvas: Canvas, outlinePath: Path, bounds: Rect) {
+        shadows.forEach { it.draw(canvas, outlinePath, bounds) }
     }
 
     override fun updateShadowBitmap(bounds: Rect) {

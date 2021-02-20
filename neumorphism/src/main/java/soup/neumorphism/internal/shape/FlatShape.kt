@@ -27,7 +27,7 @@ internal class FlatShape(
         this.drawableState = newDrawableState
     }
 
-    override fun draw(canvas: Canvas, outlinePath: Path) {
+    override fun draw(canvas: Canvas, outlinePath: Path, bounds: Rect) {
         canvas.withClipOut(outlinePath) {
             val elevation = drawableState.shadowElevation
             val z = drawableState.shadowElevation + drawableState.translationZ
@@ -36,13 +36,15 @@ internal class FlatShape(
             val inset = drawableState.inset
             left = inset.left.toFloat()
             top = inset.top.toFloat()
-            lightShadowBitmap?.let {
+            lightShadowBitmap?.let { originalShadow ->
                 val offset = -elevation - z
-                drawBitmap(it, offset + left, offset + top, null)
+                val scaledShadow = Bitmap.createScaledBitmap(originalShadow, bounds.width() + (offset + left).toInt(), bounds.height() + (offset + top).toInt(), false)
+                drawBitmap(scaledShadow, offset + left, offset + top, null)
             }
-            darkShadowBitmap?.let {
+            darkShadowBitmap?.let { originalShadow ->
                 val offset = -elevation + z
-                drawBitmap(it, offset + left, offset + top, null)
+                val scaledShadow = Bitmap.createScaledBitmap(originalShadow, bounds.width() + (offset + left).toInt(), bounds.height() + (offset + top).toInt(), false)
+                drawBitmap(scaledShadow, offset + left, offset + top, null)
             }
         }
     }

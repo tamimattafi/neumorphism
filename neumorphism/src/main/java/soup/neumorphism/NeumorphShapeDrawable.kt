@@ -180,7 +180,7 @@ class NeumorphShapeDrawable : Drawable {
     }
 
     private fun updateShadowShape() {
-        val internalBounds = getBoundsInternal()
+        val internalBounds = this.getBoundsInternal()
         if (internalBounds.width() <= 0 || internalBounds.height() <= 0) {
             shadow = null
             return
@@ -305,7 +305,8 @@ class NeumorphShapeDrawable : Drawable {
             drawBackgroundBitmap(canvas)
         }
 
-        shadow?.draw(canvas, outlinePath)
+        val shadowBounds = this.getBoundsInternal()
+        shadow?.draw(canvas, outlinePath, shadowBounds)
 
         if (hasStroke()) {
             drawStrokeShape(canvas)

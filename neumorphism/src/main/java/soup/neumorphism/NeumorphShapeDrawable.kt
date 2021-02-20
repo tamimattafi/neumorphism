@@ -19,7 +19,7 @@ class NeumorphShapeDrawable : Drawable {
 
     private var drawableState: NeumorphShapeDrawableState
 
-    private var dirty = true
+    private var dirty = false
 
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
@@ -140,7 +140,7 @@ class NeumorphShapeDrawable : Drawable {
     override fun setAlpha(alpha: Int) {
         if (drawableState.alpha != alpha) {
             drawableState.alpha = alpha
-            invalidateSelf()
+            invalidateSelfIgnoreShape()
         }
     }
 
@@ -229,7 +229,7 @@ class NeumorphShapeDrawable : Drawable {
     fun setTranslationZ(translationZ: Float) {
         if (drawableState.translationZ != translationZ) {
             drawableState.translationZ = translationZ
-            invalidateSelf()
+            invalidateSelfIgnoreShape()
         }
     }
 
@@ -241,13 +241,22 @@ class NeumorphShapeDrawable : Drawable {
         setTranslationZ(z - getShadowElevation())
     }
 
+    override fun invalidateSelf() {
+        dirty = true
+        super.invalidateSelf()
+    }
+
+    private fun invalidateSelfIgnoreShape() {
+        super.invalidateSelf()
+    }
+
     fun getPaintStyle(): Paint.Style? {
         return drawableState.paintStyle
     }
 
     fun setPaintStyle(paintStyle: Paint.Style) {
         drawableState.paintStyle = paintStyle
-        invalidateSelf()
+        invalidateSelfIgnoreShape()
     }
 
     private fun hasBackgroundBitmap(): Boolean {

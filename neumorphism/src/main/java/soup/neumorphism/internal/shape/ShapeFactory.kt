@@ -82,23 +82,19 @@ internal object ShapeFactory {
     }
 
     private fun Rect.calculateHashCode(sizeStep: Int): Int {
-        var result = left / sizeStep
-        result = 31 * result + top / sizeStep
-        result = 31 * result + right / sizeStep
-        result = 31 * result + bottom / sizeStep
+        var result = width() / sizeStep
+        result = 31 * result + height() / sizeStep
         return result
     }
 
     private fun RectF.calculateHashCode(sizeStep: Int): Int {
-        var result = if (left != 0.0f) java.lang.Float.floatToIntBits(left) / sizeStep else 0
-        result = 31 * result + if (top != 0.0f) java.lang.Float.floatToIntBits(top) / sizeStep else 0
-        result = 31 * result + if (right != 0.0f) java.lang.Float.floatToIntBits(right) / sizeStep else 0
-        result = 31 * result + if (bottom != 0.0f) java.lang.Float.floatToIntBits(bottom) / sizeStep else 0
+        var result = width().toInt() / sizeStep
+        result = 31 * result + height().toInt() / sizeStep
         return result
     }
 
     object Parameters {
-        const val SIZE_CACHING_STEP = 100
+        const val SIZE_CACHING_STEP = 24
     }
 
 }

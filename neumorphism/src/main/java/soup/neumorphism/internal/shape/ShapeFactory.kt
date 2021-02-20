@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import soup.neumorphism.CornerFamily
 import soup.neumorphism.NeumorphShapeDrawable
 import soup.neumorphism.ShapeType
+import soup.neumorphism.internal.shape.ShapeFactory.Parameters.SIZE_CACHING_STEP
 import soup.neumorphism.internal.util.BitmapUtils.clipToRadius
 import soup.neumorphism.internal.util.BitmapUtils.toBitmap
 import java.lang.ref.SoftReference
@@ -41,7 +42,7 @@ internal object ShapeFactory {
             bounds: Rect
     ): Shape {
         var hashCode = drawableState.hashCode()
-        hashCode = 31 * hashCode + bounds.hashCode()
+        hashCode = 31 * hashCode + bounds.calculateHashCode(SIZE_CACHING_STEP)
 
         return reusable_shapes[hashCode]?.get() ?: createNewShape(drawableState, bounds).also { newShape ->
             reusable_shapes[hashCode] = SoftReference(newShape)
@@ -70,7 +71,7 @@ internal object ShapeFactory {
             cornerRadius: Float,
             drawable: Drawable
     ): Bitmap {
-        var hashCode = rect.hashCode()
+        var hashCode = rect.calculateHashCode(SIZE_CACHING_STEP)
         hashCode = 31 * hashCode + cornerFamily
         hashCode = 31 * hashCode + cornerRadius.hashCode()
         hashCode = 31 * hashCode + drawable.hashCode()
@@ -78,6 +79,26 @@ internal object ShapeFactory {
         return reusable_bitmaps[hashCode]?.get() ?: createNewBitmap(rect, cornerFamily, cornerRadius, drawable).also { newBitmap ->
             reusable_bitmaps[hashCode] = SoftReference(newBitmap)
         }
+    }
+
+    private fun Rect.calculateHashCode(sizeStep: Int): Int {
+        var result = left / sizeStep
+        result = 31 * result + top / sizeStep
+        result = 31 * result + right / sizeStep
+        result = 31 * result + bottom / sizeStep
+        return result
+    }
+
+    private fun RectF.calculateHashCode(sizeStep: Int): Int {
+        var result = if (left != 0.0f) java.lang.Float.floatToIntBits(left) / sizeStep else 0
+        result = 31 * result + if (top != 0.0f) java.lang.Float.floatToIntBits(top) / sizeStep else 0
+        result = 31 * result + if (right != 0.0f) java.lang.Float.floatToIntBits(right) / sizeStep else 0
+        result = 31 * result + if (bottom != 0.0f) java.lang.Float.floatToIntBits(bottom) / sizeStep else 0
+        return result
+    }
+
+    object Parameters {
+        const val SIZE_CACHING_STEP = 100
     }
 
 }
